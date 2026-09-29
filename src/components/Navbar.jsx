@@ -7,8 +7,6 @@ export default function Navbar() {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Movies', path: '/movies' },
-    { name: 'Trending', path: '/#trending' },
-    { name: 'Watchlist', path: '/#watchlist' },
   ]
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
@@ -57,7 +55,7 @@ export default function Navbar() {
                 to={link.path}
                 end={link.path === '/'}
                 className={({ isActive }) =>
-                  isActive && link.path.startsWith('/') && !link.path.includes('#')
+                  isActive
                     ? "font-medium text-sm text-primary relative py-2 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary-container after:shadow-[0_0_12px_#f5c518]"
                     : "font-medium text-sm text-on-surface-variant hover:text-on-surface transition-colors py-2"
                 }
@@ -76,26 +74,11 @@ export default function Navbar() {
               <span>Movies</span>
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </Link>
-
-            <div
-              className="w-10 h-10 rounded-full bg-primary flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-container transition-all"
-              title="User Profile"
-            >
-              <span className="material-symbols-outlined text-on-primary text-[18px]">
-                person
-              </span>
-            </div>
           </div>
         </div>
 
-        {/* Mobile Actions: Profile + Hamburger (44px min tap targets) */}
-        <div className="flex md:hidden items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-            <span className="material-symbols-outlined text-on-primary text-[18px]">
-              person
-            </span>
-          </div>
-
+        {/* Mobile Actions: Hamburger only (44px min tap target) */}
+        <div className="flex md:hidden items-center">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -121,7 +104,7 @@ export default function Navbar() {
                 onClick={closeMobileMenu}
                 className={({ isActive }) =>
                   `px-4 py-3 min-h-[44px] rounded-xl font-medium text-base transition-colors flex items-center justify-between ${
-                    isActive && link.path.startsWith('/') && !link.path.includes('#')
+                    isActive
                       ? 'bg-surface-container text-primary-container font-semibold'
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
                   }`

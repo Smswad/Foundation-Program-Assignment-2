@@ -111,8 +111,8 @@ export default function Home() {
             community insights.
           </p>
 
-          {/* Action CTA Cluster */}
-          <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 mt-8">
+          {/* Action CTA Cluster — Single Explore Now button */}
+          <div className="w-full sm:w-auto flex items-center justify-center mt-8">
             <Link
               to="/movies"
               className="w-full sm:w-auto px-8 py-3.5 bg-primary-container text-on-primary font-display font-semibold text-base sm:text-lg rounded-full inline-flex items-center justify-center gap-2 shadow-[0_0_24px_-2px_rgba(245,197,24,0.45)] hover:shadow-[0_0_36px_rgba(245,197,24,0.65)] hover:scale-105 active:scale-95 transition-all group"
@@ -124,16 +124,6 @@ export default function Home() {
                 play_arrow
               </span>
               <span>Explore Now</span>
-            </Link>
-
-            <Link
-              to="/movies"
-              className="w-full sm:w-auto px-7 py-3.5 bg-surface-container/80 hover:bg-surface-container-high text-on-surface font-semibold text-sm sm:text-base rounded-full inline-flex items-center justify-center gap-2 backdrop-blur-md shadow-md border border-outline-variant/30 hover:border-outline-variant/60 transition-all group"
-            >
-              <span className="material-symbols-outlined text-[20px] text-secondary group-hover:text-primary transition-colors">
-                video_library
-              </span>
-              <span>Curated Vault</span>
             </Link>
           </div>
 
