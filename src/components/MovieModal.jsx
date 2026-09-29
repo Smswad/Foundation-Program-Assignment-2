@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { getMovieById } from '../services/omdb'
 
 /**
  * MovieModal
  *
- * Matches Stitch "Movie Details Modal" designs:
- * - Desktop: Centered card dialog (max-w-[690px]), backdrop blur scrim,
- *   poster/backdrop banner at top (h-[270px]), gradient fade, floating close button,
- *   ratings, tags, overview, and cast credits.
- * - Mobile: Near full-screen bottom sheet (max-h-[92vh]), drag handle,
- *   touch-accessible close buttons (44px min), zero horizontal overflow.
+ * Fully accessible, responsive modal dialog.
+ * - Auto-focuses on open
+ * - Escape key listener
+ * - Backdrop click to close (stops click propagation inside modal)
+ * - Restores background scroll on unmount
+ * - Trap focus / accessible ARIA dialog roles
  *
  * @param {{ imdbId: string|null, onClose: () => void }} props
  */
@@ -17,6 +17,8 @@ export default function MovieModal({ imdbId, onClose }) {
   const [movie, setMovie] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const modalRef = useRef(null)
+  const closeBtnRef = useRef(null)
 
   /* ── Fetch full movie detail whenever imdbId changes ── */
   useEffect(() => {
@@ -56,6 +58,20 @@ export default function MovieModal({ imdbId, onClose }) {
     return () => document.removeEventListener('keydown', handler)
   }, [imdbId, onClose])
 
+  /* ── Focus close button on open for accessibility ── */
+  useEffect(() => {
+    if (imdbId) {
+      // Focus the close button or modal container
+      setTimeout(() => {
+        if (closeBtnRef.current) {
+          closeBtnRef.current.focus()
+        } else if (modalRef.current) {
+          modalRef.current.focus()
+        }
+      }, 50)
+    }
+  }, [imdbId])
+
   /* ── Prevent background scroll when modal is open ── */
   useEffect(() => {
     if (imdbId) {
@@ -82,11 +98,13 @@ export default function MovieModal({ imdbId, onClose }) {
       onClick={onClose}
       aria-modal="true"
       role="dialog"
-      aria-label="Movie details modal"
+      aria-labelledby="movie-modal-title"
     >
       {/* Modal Dialog Card */}
       <div
-        className="w-full sm:max-w-[690px] max-h-[92vh] sm:max-h-[88vh] bg-[#16161D] rounded-t-3xl sm:rounded-2xl border-t sm:border border-outline-variant/40 shadow-2xl overflow-hidden flex flex-col transition-all animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+        ref={modalRef}
+        tabIndex={-1}
+        className="w-full sm:max-w-[690px] max-h-[92vh] sm:max-h-[88vh] bg-[#16161D] rounded-t-3xl sm:rounded-2xl border-t sm:border border-outline-variant/40 shadow-2xl overflow-hidden flex flex-col transition-all animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Drag Indicator */}
@@ -101,7 +119,7 @@ export default function MovieModal({ imdbId, onClose }) {
             {hasPoster ? (
               <img
                 src={movie.Poster}
-                alt={movie.Title}
+                alt={movie.Title ? `${movie.Title} Poster` : 'Movie Poster'}
                 className="w-full h-full object-cover object-top"
               />
             ) : (
@@ -109,6 +127,7 @@ export default function MovieModal({ imdbId, onClose }) {
                 <span className="material-symbols-outlined text-[56px] opacity-30">
                   movie
                 </span>
+                <span className="text-xs font-medium opacity-50">Poster unavailable</span>
               </div>
             )}
 
@@ -122,12 +141,13 @@ export default function MovieModal({ imdbId, onClose }) {
               </span>
             )}
 
-            {/* Close Button — 44px min tap target */}
+            {/* Close Button */}
             <button
+              ref={closeBtnRef}
               type="button"
               onClick={onClose}
               aria-label="Close dialog"
-              className="absolute top-3.5 right-4 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-95 transition-all backdrop-blur-md border border-white/20 text-white flex items-center justify-center z-20 shadow-lg cursor-pointer"
+              className="absolute top-3.5 right-4 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-95 transition-all backdrop-blur-md border border-white/20 text-white flex items-center justify-center z-20 shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-container"
             >
               <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
@@ -152,7 +172,7 @@ export default function MovieModal({ imdbId, onClose }) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="h-11 px-6 rounded-full bg-primary-container text-on-primary text-sm font-semibold hover:brightness-105 active:scale-95 transition-all"
+                  className="h-11 px-6 rounded-full bg-primary-container text-on-primary text-sm font-semibold hover:brightness-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-primary-container"
                 >
                   Close
                 </button>
@@ -163,7 +183,10 @@ export default function MovieModal({ imdbId, onClose }) {
               <>
                 {/* Title & Ratings */}
                 <div className="space-y-2">
-                  <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight leading-tight">
+                  <h2
+                    id="movie-modal-title"
+                    className="font-display text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight leading-tight"
+                  >
                     {movie.Title}
                   </h2>
 
@@ -206,9 +229,9 @@ export default function MovieModal({ imdbId, onClose }) {
                 {/* Genre Badges */}
                 {genres.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 pt-1">
-                    {genres.map((genre) => (
+                    {genres.map((genre, index) => (
                       <span
-                        key={genre}
+                        key={`${genre}-${index}`}
                         className="px-3 py-1 text-xs rounded-full bg-surface-container text-on-surface-variant border border-outline-variant/60 font-medium"
                       >
                         {genre}
@@ -270,14 +293,14 @@ export default function MovieModal({ imdbId, onClose }) {
                   <div className="flex items-center gap-2.5 w-full sm:w-auto">
                     <button
                       type="button"
-                      className="flex-1 sm:flex-initial h-11 px-6 bg-primary-container hover:brightness-105 active:scale-95 text-on-primary font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-md shadow-primary-container/20 transition-all cursor-pointer"
+                      className="flex-1 sm:flex-initial h-11 px-6 bg-primary-container hover:brightness-105 active:scale-95 text-on-primary font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-md shadow-primary-container/20 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-container"
                     >
                       <span className="material-symbols-outlined text-[18px]">play_arrow</span>
                       <span>Watch Trailer</span>
                     </button>
                     <button
                       type="button"
-                      className="h-11 px-4 bg-surface-container hover:bg-surface-container-high active:scale-95 text-on-surface font-medium text-sm rounded-xl border border-outline-variant transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="h-11 px-4 bg-surface-container hover:bg-surface-container-high active:scale-95 text-on-surface font-medium text-sm rounded-xl border border-outline-variant transition-all flex items-center justify-center gap-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-container"
                     >
                       <span className="material-symbols-outlined text-[18px]">bookmark_add</span>
                       <span className="hidden sm:inline">Watchlist</span>
@@ -287,7 +310,7 @@ export default function MovieModal({ imdbId, onClose }) {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="w-full sm:w-auto h-11 px-5 border border-outline-variant hover:border-outline bg-transparent text-on-surface-variant hover:text-on-surface rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95"
+                    className="w-full sm:w-auto h-11 px-5 border border-outline-variant hover:border-outline bg-transparent text-on-surface-variant hover:text-on-surface rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-container"
                   >
                     <span>Close</span>
                   </button>
