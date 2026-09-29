@@ -15,12 +15,12 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-surface-container-lowest/85 backdrop-blur-xl border-b border-outline-variant/40">
-      <div className="h-16 md:h-20 w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-10 flex items-center justify-between">
+      <div className="h-16 md:h-20 w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-10 flex items-center justify-between">
         {/* Brand / Logo */}
         <Link
           to="/"
           onClick={closeMobileMenu}
-          className="flex items-center gap-2.5 group"
+          className="flex items-center gap-2.5 group min-h-[44px]"
         >
           {/* Logo SVG */}
           <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-surface-container-low border border-primary-container flex items-center justify-center relative overflow-hidden shadow-[0_0_12px_rgba(245,197,24,0.2)]">
@@ -58,8 +58,8 @@ export default function Navbar() {
                 end={link.path === '/'}
                 className={({ isActive }) =>
                   isActive && link.path.startsWith('/') && !link.path.includes('#')
-                    ? "font-medium text-sm text-primary relative py-1 after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-primary-container after:shadow-[0_0_12px_#f5c518]"
-                    : "font-medium text-sm text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    ? "font-medium text-sm text-primary relative py-2 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary-container after:shadow-[0_0_12px_#f5c518]"
+                    : "font-medium text-sm text-on-surface-variant hover:text-on-surface transition-colors py-2"
                 }
               >
                 {link.name}
@@ -70,7 +70,7 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <Link
               to="/movies"
-              className="h-10 px-5 bg-primary-container text-on-primary font-semibold text-sm rounded-full flex items-center gap-1.5 shadow-[0_0_16px_-2px_rgba(245,197,24,0.35)] hover:shadow-[0_0_24px_rgba(245,197,24,0.5)] hover:brightness-105 active:scale-95 transition-all"
+              className="h-11 px-5 bg-primary-container text-on-primary font-semibold text-sm rounded-full flex items-center gap-1.5 shadow-[0_0_16px_-2px_rgba(245,197,24,0.35)] hover:shadow-[0_0_24px_rgba(245,197,24,0.5)] hover:brightness-105 active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[18px]">movie</span>
               <span>Movies</span>
@@ -78,7 +78,7 @@ export default function Navbar() {
             </Link>
 
             <div
-              className="w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-container transition-all"
+              className="w-10 h-10 rounded-full bg-primary flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-container transition-all"
               title="User Profile"
             >
               <span className="material-symbols-outlined text-on-primary text-[18px]">
@@ -88,9 +88,9 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Actions: Profile + Hamburger */}
+        {/* Mobile Actions: Profile + Hamburger (44px min tap targets) */}
         <div className="flex md:hidden items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
             <span className="material-symbols-outlined text-on-primary text-[18px]">
               person
             </span>
@@ -100,9 +100,9 @@ export default function Navbar() {
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            className="w-10 h-10 flex items-center justify-center text-on-surface hover:text-primary transition-colors focus:outline-none"
+            className="w-11 h-11 flex items-center justify-center text-on-surface hover:text-primary transition-colors focus:outline-none rounded-lg"
           >
-            <span className="material-symbols-outlined text-[24px]">
+            <span className="material-symbols-outlined text-[26px]">
               {mobileMenuOpen ? 'close' : 'menu'}
             </span>
           </button>
@@ -111,8 +111,8 @@ export default function Navbar() {
 
       {/* Mobile Dropdown Menu Collapse */}
       {mobileMenuOpen && (
-        <div className="md:hidden w-full bg-surface-container-lowest/95 backdrop-blur-2xl border-b border-outline-variant/40 px-4 py-6 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-          <nav className="flex flex-col gap-2">
+        <div className="md:hidden w-full bg-surface-container-lowest/95 backdrop-blur-2xl border-b border-outline-variant/40 px-4 py-5 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <nav className="flex flex-col gap-1.5">
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
@@ -120,7 +120,7 @@ export default function Navbar() {
                 end={link.path === '/'}
                 onClick={closeMobileMenu}
                 className={({ isActive }) =>
-                  `px-4 py-2.5 rounded-xl font-medium text-base transition-colors flex items-center justify-between ${
+                  `px-4 py-3 min-h-[44px] rounded-xl font-medium text-base transition-colors flex items-center justify-between ${
                     isActive && link.path.startsWith('/') && !link.path.includes('#')
                       ? 'bg-surface-container text-primary-container font-semibold'
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'
@@ -139,7 +139,7 @@ export default function Navbar() {
             <Link
               to="/movies"
               onClick={closeMobileMenu}
-              className="w-full h-11 bg-primary-container text-on-primary font-semibold text-sm rounded-full flex items-center justify-center gap-2 shadow-[0_0_16px_rgba(245,197,24,0.35)] active:scale-95 transition-all"
+              className="w-full h-12 bg-primary-container text-on-primary font-semibold text-sm rounded-full flex items-center justify-center gap-2 shadow-[0_0_16px_rgba(245,197,24,0.35)] active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[18px]">movie</span>
               <span>Explore All Movies</span>

@@ -1,108 +1,71 @@
+import MovieCard from './MovieCard'
+
 /**
  * MovieGrid — renders a responsive grid of movie cards.
  *
- * Props:
- *   movies      {Object[]}  Array of full or partial OMDb movie objects.
- *   isLoading   {boolean}   Show skeleton shimmer cards while fetching.
- *   onSeeDetails {Function} Called with a movie object when the card is clicked.
+ * Scales cleanly across breakpoints:
+ * - 375px (Mobile): 1 column stacked layout (touch-friendly full width)
+ * - 640px (Small Tablet): 2 columns
+ * - 768px - 1024px (Tablet/Laptop): 3 columns
+ * - 1280px+ (Desktop): 4 columns
  *
- * Empty-array case: shows a friendly "no results" message.
+ * @param {{ movies: Object[], isLoading: boolean, onSeeDetails: (movie: Object) => void }} props
  */
 export default function MovieGrid({ movies = [], isLoading = false, onSeeDetails }) {
-  /* --- Skeleton shimmer card ------------------------------------------- */
+  /* --- Skeleton shimmer cards --- */
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 md:px-8 lg:px-10 py-6">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="flex flex-col rounded-xl overflow-hidden bg-surface-container animate-pulse">
-            <div className="aspect-[2/3] bg-surface-container-high" />
-            <div className="p-3 flex flex-col gap-2">
-              <div className="h-3.5 bg-surface-container-high rounded w-3/4" />
-              <div className="h-3 bg-surface-container-high rounded w-1/2" />
+      <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex flex-col rounded-xl overflow-hidden bg-surface-container-low border border-outline-variant/20 animate-pulse"
+            >
+              <div className="aspect-[2/3] w-full bg-surface-container" />
+              <div className="p-4 flex flex-col gap-2.5">
+                <div className="h-4 bg-surface-container rounded w-3/4" />
+                <div className="h-3 bg-surface-container rounded w-1/2" />
+                <div className="h-3 bg-surface-container rounded w-full mt-1 hidden sm:block" />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     )
   }
 
-  /* --- Empty state ------------------------------------------------------- */
+  /* --- Empty state --- */
   if (movies.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20 text-center px-4">
-        <span className="material-symbols-outlined text-primary-container text-[48px]">
-          movie_filter
-        </span>
-        <p className="text-on-surface font-display text-lg font-semibold">
+      <div className="flex flex-col items-center justify-center gap-4 py-20 text-center px-4 max-w-md mx-auto">
+        <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container shadow-inner">
+          <span className="material-symbols-outlined text-[36px]">
+            movie_filter
+          </span>
+        </div>
+        <p className="text-on-surface font-display text-xl font-bold">
           No movies found
         </p>
-        <p className="text-on-surface-variant text-sm max-w-xs">
-          Try a different search term or browse our curated list.
+        <p className="text-on-surface-variant text-sm leading-relaxed">
+          We couldn't find any movies matching your search. Try searching by title or director.
         </p>
       </div>
     )
   }
 
-  /* --- Grid --------------------------------------------------------------- */
+  /* --- Responsive Movie Grid --- */
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 md:px-8 lg:px-10 py-6">
-      {movies.map((movie) => {
-        const poster = movie.Poster && movie.Poster !== 'N/A' ? movie.Poster : null
-        const title  = movie.Title ?? movie.title ?? '—'
-        const year   = movie.Year ?? '—'
-        const rating = movie.imdbRating && movie.imdbRating !== 'N/A'
-          ? movie.imdbRating
-          : null
-
-        return (
-          <article
+    <section className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 pb-16">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        {movies.map((movie) => (
+          <MovieCard
             key={movie.imdbID}
+            movie={movie}
             onClick={() => onSeeDetails?.(movie)}
-            className="flex flex-col rounded-xl overflow-hidden bg-surface-container shadow-xl cursor-pointer group hover:shadow-[0_8px_32px_rgba(0,0,0,0.6)] hover:-translate-y-1 transition-all duration-300"
-          >
-            {/* Poster */}
-            <div className="relative aspect-[2/3] bg-surface-container-lowest overflow-hidden">
-              {poster ? (
-                <img
-                  src={poster}
-                  alt={title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-on-surface-variant">
-                  <span className="material-symbols-outlined text-[48px] opacity-30">
-                    movie
-                  </span>
-                </div>
-              )}
-
-              {/* IMDb rating badge */}
-              {rating && (
-                <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-lowest/85 backdrop-blur-md">
-                  <span
-                    className="material-symbols-outlined text-primary-container text-[12px]"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    star
-                  </span>
-                  <span className="text-primary-container text-[11px] font-bold tracking-wide">
-                    {rating}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Meta */}
-            <div className="p-3 flex flex-col gap-1">
-              <p className="text-on-surface text-sm font-semibold line-clamp-2 leading-snug">
-                {title}
-              </p>
-              <p className="text-on-surface-variant text-xs">{year}</p>
-            </div>
-          </article>
-        )
-      })}
-    </div>
+          />
+        ))}
+      </div>
+    </section>
   )
 }
